@@ -1,9 +1,10 @@
 class_name Vehicle
 extends VehicleBody3D
 
+signal upside_down_changed(value);
 
-const STEER_SPEED = 1.5
-const STEER_LIMIT = 0.4
+const STEER_SPEED = 1.5;
+const STEER_LIMIT = 0.4;
 
 @export_category("Control")
 @export var engine_force_value = 3000;
@@ -43,9 +44,9 @@ const STEER_LIMIT = 0.4
 @export var light_trail_speed = 80;
 
 @export_category("Interaction with collectables")
-@export var collectStreamPlayer: AudioStreamPlayer;
+@export var collectStreamPlayer: AudioStreamPlayer = null;
 
-var steer_target = 0
+var steer_target = 0;
 var speed_kph = 0;
 var rpm_value = 0;
 var rpm_percent = 0;
@@ -57,68 +58,84 @@ var is_upside_down = false;
 
 var reset_count = 0;
 
-signal upside_down_changed(value)
-
-var game_manager : GameManager;
+var is_handbrake_pressed : bool = false;
+var is_accelerate_pressed : bool = false;
+var is_reverse_pressed : bool = false;
+var is_turning_left_pressed : bool = false;
+var is_turning_right_pressed : bool = false;
 
 func _ready():
-	add_to_group("Car");
-	game_manager = get_node("/root/Gamemanager");
+	InputManager.on_handbrake_input.connect(func(value): is_handbrake_pressed = value);
+	InputManager.on_accelerate_input.connect(func(value) : is_accelerate_pressed = value);
+	InputManager.on_reverse_input.connect(func(value) : is_reverse_pressed = value);
+	InputManager.on_left_turn_input.connect(func(value) : is_turning_left_pressed = value);
+	InputManager.on_right_turn_input.connect(func(value) : is_turning_right_pressed = value);
+
 
 func _process(delta):
 	if(is_upside_down):
-		if Input.is_action_pressed("handbrake"):
+		if is_handbrake_pressed:
 			reset_count += delta;
 			if(reset_count > reset_time_seconds):
-				ResetCarFlipped();	
+				ResetCarFlipped();
 		else:
 			reset_count = 0;
 	else:
 		reset_count = 0;
 
 
-
 func _physics_process(delta):
-	var fwd_mps = (linear_velocity) * transform.basis.x
+	
+	if GameManager.state != GameManager.GAME_STATES.PLAYING:
+		return;
+		
+	var fwd_mps = (linear_velocity) * transform.basis.x;
 
-	steer_target = Input.get_action_strength("turn_left") - Input.get_action_strength("turn_right")
-	steer_target *= STEER_LIMIT
+	if is_turning_left_pressed or is_turning_right_pressed:
+		steer_target = Input.get_action_strength("turn_left") - Input.get_action_strength("turn_right");
+	
+	steer_target *= STEER_LIMIT;
 
-	if Input.is_action_pressed("accelerate"):
+	if is_accelerate_pressed:
 		# Increase engine force at low speeds to make the initial acceleration faster.
-		var speed = linear_velocity.length()
+		var speed = linear_velocity.length();
 		if speed < 5 and speed != 0:
-			engine_force = clamp(engine_force_value * brake_force_multiplier / speed, 0, engine_force_value)
+			engine_force = clamp(engine_force_value * brake_force_multiplier / speed, 0, engine_force_value);
 		else:
-			engine_force = engine_force_value
+			engine_force = engine_force_value;
 	else:
-		engine_force = 0
+		engine_force = 0;
 
-	if Input.is_action_pressed("reverse"):
+	if is_reverse_pressed:
 		# Increase engine force at low speeds to make the initial acceleration faster.
 		if fwd_mps >= Vector3.LEFT:
-			var speed = linear_velocity.length()
+			var speed = linear_velocity.length();
 			if speed < 5 and speed != 0:
-				engine_force = -clamp(engine_force_value * brake_force_multiplier / speed, 0, engine_force_value)
+				engine_force = -clamp(engine_force_value * brake_force_multiplier / speed, 0, engine_force_value);
 			else:
-				engine_force = -engine_force_value
+				engine_force = -engine_force_value;
 		else:
-			brake = engine_force_value * brake_force_multiplier
+			brake = engine_force_value * brake_force_multiplier;
 	else:
-		brake = 0.0
+		brake = 0.0;
 
-	if Input.is_action_pressed("handbrake"):
+	if is_handbrake_pressed:
 		wheel_br.brake = engine_force_value * brake_force_multiplier;
 		wheel_bl.brake = engine_force_value * brake_force_multiplier;
 	else:
 		wheel_br.brake = 0;
 		wheel_bl.brake = 0;
-		
-		
-	steering = move_toward(steering, steer_target, STEER_SPEED * delta)
+
+
+	steering = move_toward(steering, steer_target, STEER_SPEED * delta);
+	
 	speed_kph = linear_velocity.length() * 3.6;
 	calc_rpm();
-	var pichToSet =  clamp(rpm_percent * rpm_pitch_max / 100, rpm_pitch_min, rpm_pitch_max);
+	
+	GameStats.rpm_percent = rpm_percent;
+	GameStats.speed_kph = speed_kph;
+	
+	var pichToSet =  clamp(rpm_percent * rpm_pitch_max / 100.0, rpm_pitch_min, rpm_pitch_max);
 	# print("KPH %d Gear %d RPM %d - %d MotorPitch %f" % [speed_kph, selected_gear+1, rpm_value, rpm_percent, pichToSet])
 	motorStreamPlayer.pitch_scale = pichToSet;
 	var ud_count = 0;
@@ -133,7 +150,7 @@ func _physics_process(delta):
 		
 	var now_upside_down =  ud_count == 4 || (ud_count > 2 && speed_kph < 10);
 	if(is_upside_down != now_upside_down):
-		print("Upside down changed to ", now_upside_down)
+		#print("Upside down changed to ", now_upside_down);
 		is_upside_down = now_upside_down;
 		upside_down_changed.emit(now_upside_down);
 	
@@ -155,7 +172,7 @@ func _physics_process(delta):
 
 func calc_rpm():
 	var selectedRatio = gears_ratio[selected_gear];
-	rpm_value = (speed_kph * 1000) / (radio_rueda_metros / selectedRatio * factor_conversion)
+	rpm_value = (speed_kph * 1000) / (radio_rueda_metros / selectedRatio * factor_conversion);
 	if(rpm_value > rpm_up && selected_gear < gears_ratio.size() -1):
 		selected_gear += 1;
 	elif (rpm_value < rpm_down && selected_gear > 0):
@@ -163,25 +180,28 @@ func calc_rpm():
 	
 	if(rpm_value < rpm_idle && selected_gear == 0):
 		rpm_value = rpm_idle;
-	rpm_percent = rpm_value  / rpm_max * 100;
 		
+	rpm_percent = rpm_value / rpm_max * 100.0;
+
 
 func ResetCarFlipped():
 	transform.basis = Basis();
 	translate(Vector3(0, 0.03, 0));
 
 
-
-func _on_body_entered(body):
-
-	if body.is_in_group("Collectable"):
+func _on_area_3d_area_entered(area):
+	if area.is_in_group("Collectable"):
 		collectStreamPlayer.play();
-
-		body.get_parent().queue_free();
-		game_manager.add_treasure();
-	else:
+		area.get_parent().queue_free();
+		GameManager.add_nft();
+		
+	elif area.is_in_group("Destroyable"):
 		hitStreamPlayer.play();
-	
 
-	pass; # Replace with function body.
+		var destroyable = area.get_parent().get_parent();
 
+		if destroyable is Destroyable:
+			var direction = (global_transform.origin - destroyable.global_transform.origin).normalized();
+			apply_force(direction * destroyable.building_size * destroyable.destroyed_force_multiplier);
+			GameManager.add_points(destroyable.building_size + ((speed_kph - destroyable.building_size) * destroyable.point_multiplier));
+			destroyable.Explode();

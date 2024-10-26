@@ -1,11 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://ctvqifyknhevw"]
+[gd_scene load_steps=8 format=3 uid="uid://ctvqifyknhevw"]
 
-[ext_resource type="Script" path="res://scripts/ui/GameOverScreen.gd" id="1_cafsr"]
+[ext_resource type="Script" path="res://scripts/ui/game_over_screen.gd" id="1_pjgt1"]
 [ext_resource type="Theme" uid="uid://dpqda1rl4km7n" path="res://art/theme/main.tres" id="2_vy71p"]
-[ext_resource type="Script" path="res://scripts/ui/PointTracker.gd" id="3_p6648"]
-[ext_resource type="Script" path="res://scripts/ui/TreasuresLabel.gd" id="3_w7qbc"]
-[ext_resource type="Script" path="res://scripts/ui/TryAgainButton.gd" id="4_tcqlj"]
-[ext_resource type="AudioStream" uid="uid://cyo6f0okq77gv" path="res://art/music/GameOver.ogg" id="6_0hy5c"]
+[ext_resource type="AudioStream" uid="uid://cyo6f0okq77gv" path="res://art/music/game_over.ogg" id="6_0hy5c"]
 
 [sub_resource type="Gradient" id="Gradient_df10g"]
 colors = PackedColorArray(1, 0, 1, 1, 1, 1, 1, 1)
@@ -27,12 +24,14 @@ width = 128
 height = 128
 fill_from = Vector2(0, 1)
 
-[node name="GameOverScreen" type="CanvasLayer" node_paths=PackedStringArray("winLabel", "nftLabel")]
+[node name="GameOverScreen" type="CanvasLayer" node_paths=PackedStringArray("game_over_music", "label_win", "label_score", "label_nfts")]
 process_mode = 3
-layer = 9
-script = ExtResource("1_cafsr")
-winLabel = NodePath("MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/WinSubtitle")
-nftLabel = NodePath("MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer/TreasuresAmmount")
+layer = 128
+script = ExtResource("1_pjgt1")
+game_over_music = NodePath("MarginContainer/GameOverMusic")
+label_win = NodePath("MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/WinMessage")
+label_score = NodePath("MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer/ScoreAmount")
+label_nfts = NodePath("MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer/NFTsAmount")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 process_mode = 2
@@ -88,7 +87,7 @@ theme_override_font_sizes/font_size = 50
 text = "GAME OVER"
 horizontal_alignment = 1
 
-[node name="WinSubtitle" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer"]
+[node name="WinMessage" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("2_vy71p")
 theme_override_colors/font_color = Color(1, 1, 0, 1)
@@ -101,19 +100,18 @@ layout_mode = 2
 size_flags_vertical = 3
 columns = 2
 
-[node name="Treasures" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer"]
+[node name="NFTs" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 theme = ExtResource("2_vy71p")
 theme_override_font_sizes/font_size = 25
 text = "NFTs:"
 
-[node name="TreasuresAmmount" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer"]
+[node name="NFTsAmount" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 theme = ExtResource("2_vy71p")
 theme_override_font_sizes/font_size = 25
 text = "2/5"
 horizontal_alignment = 2
-script = ExtResource("3_w7qbc")
 
 [node name="Score" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
@@ -122,7 +120,7 @@ theme_override_font_sizes/font_size = 25
 text = "Cryptoscore:"
 horizontal_alignment = 2
 
-[node name="ScoreAmmount" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer"]
+[node name="ScoreAmount" type="Label" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme = ExtResource("2_vy71p")
@@ -130,16 +128,15 @@ theme_override_font_sizes/font_size = 25
 text = "10000000
 "
 horizontal_alignment = 2
-script = ExtResource("3_p6648")
 
 [node name="TryAgainBtn" type="Button" parent="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("2_vy71p")
 theme_override_font_sizes/font_size = 25
 text = "TRY AGAIN"
-script = ExtResource("4_tcqlj")
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="MarginContainer"]
+[node name="GameOverMusic" type="AudioStreamPlayer" parent="MarginContainer"]
 stream = ExtResource("6_0hy5c")
-autoplay = true
 bus = &"Music"
+
+[connection signal="pressed" from="MarginContainer/GameOver/MarginContainer/MarginContainer/VBoxContainer/TryAgainBtn" to="." method="_on_try_again_btn_pressed"]

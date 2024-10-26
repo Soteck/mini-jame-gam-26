@@ -5,12 +5,12 @@
 [ext_resource type="Script" path="res://scripts/follow_camera.gd" id="3_tc8wa"]
 [ext_resource type="PackedScene" uid="uid://bjyeachxcglil" path="res://art/particles/light_trail.tscn" id="3_tyxii"]
 [ext_resource type="PackedScene" uid="uid://d0yc53hpqphhb" path="res://art/particles/wheel_trail.tscn" id="4_sk4p5"]
-[ext_resource type="Material" path="res://art/Materials/car_red_body.tres" id="4_svikk"]
+[ext_resource type="Material" uid="uid://dlyvi6u87qoj5" path="res://art/Materials/car_red_body.tres" id="4_svikk"]
 [ext_resource type="PackedScene" uid="uid://dpwiasqc2c0kk" path="res://prefabs/ui/vehicle_ui.tscn" id="5_c4uwo"]
-[ext_resource type="AudioStream" uid="uid://chkaxo8fo73xw" path="res://art/sounds/Menu Sounds/wav/menu_11.wav" id="5_ijv85"]
-[ext_resource type="AudioStream" uid="uid://7mwruodkyjdh" path="res://art/sounds/Car/Crunch.wav" id="6_d6syg"]
+[ext_resource type="AudioStream" uid="uid://7mwruodkyjdh" path="res://art/sounds/car/Crunch.wav" id="6_d6syg"]
 [ext_resource type="ArrayMesh" uid="uid://bwci23srglq6j" path="res://art/car/race_car_Plane_009.res" id="6_w88hb"]
-[ext_resource type="AudioStream" uid="uid://bkw3wd37g2smq" path="res://art/sounds/Car/636066__lumamorph__eight-cylinder-engine-idling.wav" id="8_2wgnu"]
+[ext_resource type="AudioStream" uid="uid://chkaxo8fo73xw" path="res://art/sounds/menu_sounds/wav/menu_11.wav" id="7_1v8ir"]
+[ext_resource type="AudioStream" uid="uid://bkw3wd37g2smq" path="res://art/sounds/car/636066__lumamorph__eight-cylinder-engine-idling.wav" id="8_2wgnu"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dj6v0"]
 size = Vector3(2, 1.15, 4.2)
@@ -92,6 +92,18 @@ wheel_trails = NodePath("trails/wheel")
 light_trails = NodePath("trails/lights")
 collectStreamPlayer = NodePath("CollectAudio")
 
+[node name="VehicleUi" parent="." node_paths=PackedStringArray("vehicle") instance=ExtResource("5_c4uwo")]
+visible = false
+vehicle = NodePath("..")
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58658, 0.077)
+shape = SubResource("BoxShape3D_dj6v0")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58658, 0.077)
 shape = SubResource("BoxShape3D_dj6v0")
@@ -135,11 +147,11 @@ use_as_traction = true
 use_as_steering = true
 wheel_radius = 0.325
 wheel_friction_slip = 0.95
-suspension_travel = 0.25
-suspension_stiffness = 160.0
+suspension_travel = 0.1
+suspension_stiffness = 50.0
 suspension_max_force = 6500.0
-damping_compression = 0.5
-damping_relaxation = 0.75
+damping_compression = 0.1
+damping_relaxation = 0.5
 
 [node name="Wheel3" type="MeshInstance3D" parent="wheel-FR"]
 _import_path = NodePath("BODY-vehicle/wheel3-wheel")
@@ -153,11 +165,11 @@ use_as_traction = true
 use_as_steering = true
 wheel_radius = 0.325
 wheel_friction_slip = 0.95
-suspension_travel = 0.25
-suspension_stiffness = 160.0
+suspension_travel = 0.1
+suspension_stiffness = 50.0
 suspension_max_force = 6500.0
-damping_compression = 0.5
-damping_relaxation = 0.75
+damping_compression = 0.1
+damping_relaxation = 0.5
 
 [node name="Wheel1" type="MeshInstance3D" parent="wheel-FL"]
 _import_path = NodePath("BODY-vehicle/wheel1-wheel")
@@ -169,11 +181,11 @@ surface_material_override/0 = ExtResource("3_5pg4s")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.802908, 0.295627, -1.474)
 wheel_radius = 0.325
 wheel_friction_slip = 0.85
-suspension_travel = 0.25
-suspension_stiffness = 160.0
-suspension_max_force = 9000.0
-damping_compression = 0.5
-damping_relaxation = 0.75
+suspension_travel = 0.1
+suspension_stiffness = 50.0
+suspension_max_force = 6500.0
+damping_compression = 0.1
+damping_relaxation = 0.5
 
 [node name="Wheel4" type="MeshInstance3D" parent="wheel-BR"]
 _import_path = NodePath("BODY-vehicle/wheel4-wheel")
@@ -185,11 +197,11 @@ surface_material_override/0 = ExtResource("3_5pg4s")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.81896, 0.295627, -1.474)
 wheel_radius = 0.325
 wheel_friction_slip = 0.85
-suspension_travel = 0.25
-suspension_stiffness = 160.0
-suspension_max_force = 9000.0
-damping_compression = 0.5
-damping_relaxation = 0.75
+suspension_travel = 0.1
+suspension_stiffness = 50.0
+suspension_max_force = 6500.0
+damping_compression = 0.1
+damping_relaxation = 0.5
 
 [node name="Wheel2" type="MeshInstance3D" parent="wheel-BL"]
 _import_path = NodePath("BODY-vehicle/wheel2-wheel")
@@ -197,16 +209,12 @@ transform = Transform3D(2.48, 0, 0, 0, 1.385, 0, 0, 0, 1.385, 0, 0, 0)
 mesh = SubResource("ArrayMesh_8u5tn")
 surface_material_override/0 = ExtResource("3_5pg4s")
 
-[node name="VehicleUi" parent="." node_paths=PackedStringArray("vehicle") instance=ExtResource("5_c4uwo")]
-visible = false
-vehicle = NodePath("..")
-
 [node name="center_mass_reference" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0.25)
 visible = false
 
 [node name="CollectAudio" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("5_ijv85")
+stream = ExtResource("7_1v8ir")
 
 [node name="MotorAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_2wgnu")
@@ -248,6 +256,5 @@ script = ExtResource("3_tc8wa")
 min_distance = 3.0
 height = 0.1
 
-[connection signal="body_entered" from="." to="." method="_on_body_entered"]
-[connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]
 [connection signal="upside_down_changed" from="." to="VehicleUi" method="set_visible"]
+[connection signal="area_entered" from="Area3D" to="." method="_on_area_3d_area_entered"]

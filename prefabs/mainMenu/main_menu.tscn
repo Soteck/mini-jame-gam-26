@@ -1,15 +1,15 @@
 [gd_scene load_steps=23 format=3 uid="uid://bkwmiu271cxf8"]
 
-[ext_resource type="Script" path="res://scripts/mainMenu/main_menu.gd" id="1_8805b"]
+[ext_resource type="Script" path="res://scripts/menu/main_menu.gd" id="1_8805b"]
 [ext_resource type="Texture2D" uid="uid://w246lk2eqrg" path="res://art/backgrounds/vaporwave-background-10.png" id="1_tu1xq"]
+[ext_resource type="PackedScene" uid="uid://nl3ly4i4vwy" path="res://scenes/gameplay.tscn" id="2_37pos"]
 [ext_resource type="Theme" uid="uid://dpqda1rl4km7n" path="res://art/theme/main.tres" id="2_f3fat"]
-[ext_resource type="PackedScene" uid="uid://nl3ly4i4vwy" path="res://scenes/gameplay.tscn" id="2_v7yms"]
 [ext_resource type="Shader" path="res://art/shaders/glitch.gdshader" id="4_5f5nj"]
-[ext_resource type="AudioStream" uid="uid://dcnytumipye5u" path="res://art/sounds/Menu Sounds/wav/menu_19.wav" id="6_afl2u"]
-[ext_resource type="Script" path="res://scripts/mainMenu/CreditsMenu.gd" id="6_fsf6p"]
-[ext_resource type="Script" path="res://scripts/mainMenu/OptionsMenu.gd" id="6_pf22d"]
+[ext_resource type="AudioStream" uid="uid://dcnytumipye5u" path="res://art/sounds/menu_sounds/wav/menu_19.wav" id="6_afl2u"]
+[ext_resource type="Script" path="res://scripts/menu/credits_menu.gd" id="6_fsf6p"]
+[ext_resource type="Script" path="res://scripts/menu/options_menu.gd" id="6_pf22d"]
 [ext_resource type="FontFile" uid="uid://dvxlgpgvvlyx" path="res://art/fonts/SyntheticText.ttf" id="6_qgd4r"]
-[ext_resource type="AudioStream" uid="uid://08glyqutlt1y" path="res://art/sounds/Menu Sounds/wav/menu_1.wav" id="7_dmuv4"]
+[ext_resource type="AudioStream" uid="uid://08glyqutlt1y" path="res://art/sounds/menu_sounds/wav/menu_1.wav" id="7_dmuv4"]
 [ext_resource type="PackedScene" uid="uid://c8i7dlv0ns4jl" path="res://prefabs/mainMenu/intro_music.tscn" id="8_coyqn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dfff5"]
@@ -57,7 +57,7 @@ bg_color = Color(0.788235, 0.172549, 0.945098, 1)
 
 [node name="MainMenu" type="CanvasLayer"]
 script = ExtResource("1_8805b")
-game = ExtResource("2_v7yms")
+game = ExtResource("2_37pos")
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="."]
 clip_contents = true
@@ -101,7 +101,7 @@ theme_override_constants/shadow_offset_y = 2
 bbcode_enabled = true
 text = "[center][font_size=100]CRYPTOGEDDON[/font_size]
 [font_size=20
-]The moon is mine now[/font_size][/center]
+]Internet is ez for me[/font_size][/center]
 "
 fit_content = true
 
